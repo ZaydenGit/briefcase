@@ -1,6 +1,6 @@
 import type { RequestHandler } from "express";
-import Income from "../models/Income.js";
 import createHttpError from "http-errors";
+import Income from "../models/Income.js";
 import { User } from "../models/User.js";
 
 export const list: RequestHandler = async (req, res, next) => {
@@ -14,19 +14,19 @@ export const list: RequestHandler = async (req, res, next) => {
 };
 
 interface CreateBody {
-	title?: string;
+	name?: string;
 	amount?: number;
 	category?: string;
 }
 
 export const create: RequestHandler<unknown, unknown, CreateBody, unknown> = async (req, res, next) => {
 	try {
-		const { title, amount, category } = req.body;
-		if (!title || !amount || !category) throw createHttpError(400, "Parameters missing");
+		const { name, amount, category } = req.body;
+		if (!name || !amount || !category) throw createHttpError(400, "Parameters missing");
 		if (!req.user) throw createHttpError(401, "User not authorized");
 		const newIncome = new Income({
 			userId: req.user.id,
-			title,
+			name,
 			amount,
 			category,
 		});
@@ -42,7 +42,7 @@ interface UpdateParams {
 }
 
 interface UpdateBody {
-	title?: string;
+	name?: string;
 	amount?: number;
 	category?: string;
 }
@@ -55,13 +55,13 @@ export const update: RequestHandler<UpdateParams, unknown, UpdateBody, unknown> 
 		if (req.user.id !== authUser.id) throw createHttpError(401, "User not authorized");
 		const income = await Income.findById(id);
 		if (!income) throw createHttpError(404, "Income not found");
-		const { title, amount, category } = req.body;
-		if (!title && !amount && !category) throw createHttpError(400, "At least one field must be updated");
-		if (title === income.title && amount === income.amount && category === income.category)
+		const { name, amount, category } = req.body;
+		if (!name && !amount && !category) throw createHttpError(400, "At least one field must be updated");
+		if (name === income.name && amount === income.amount && category === income.category)
 			throw createHttpError(400, "No changes detected");
 
 		//add validation to these sections later
-		if (title && income.title !== title) income.title = title;
+		if (name && income.name !== name) income.name = name;
 		if (amount && income.amount !== amount) income.amount = amount;
 		if (category && income.category !== category) income.category = category;
 		const updatedIncome = await income.save();

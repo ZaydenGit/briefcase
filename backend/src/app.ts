@@ -1,24 +1,21 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
+import { connectDatabase } from "./db.js";
 import env from "./util/validate.js";
 
 dotenv.config({ path: "../.env" });
-import { connectDatabase } from "./db.js";
 const port = env.PORT || 5000;
 
 import cookieParser from "cookie-parser";
 import express, { type NextFunction, type Request, type Response } from "express";
 import createHttpError from "http-errors";
-// import morgan from "morgan";
 import { requireAuth } from "./middleware/auth.js";
-import userRoutes from "./routes/userRoutes.js";
 import expenseRoutes from "./routes/expenseRoutes.js";
-import incomeRoutes from "./routes/incomeRoutes.js";
 import goalRoutes from "./routes/goalRoutes.js";
+import incomeRoutes from "./routes/incomeRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 const app = express();
-
-// app.use(morgan("dev"));
 
 app.use(helmet());
 app.use(express.json());
@@ -41,9 +38,9 @@ app.use((req, res, next) => {
 	else next(createHttpError(404, "Request blocked by cors"));
 });
 
-app.use("/api/user", userRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/expenses", requireAuth, expenseRoutes);
-app.use("/api/income", requireAuth, incomeRoutes);
+app.use("/api/incomes", requireAuth, incomeRoutes);
 app.use("/api/goals", requireAuth, goalRoutes);
 
 app.use((req, res, next) => {

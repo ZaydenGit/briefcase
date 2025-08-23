@@ -1,14 +1,15 @@
 import bcrypt from "bcrypt";
 import type { RequestHandler } from "express";
 import createHttpError from "http-errors";
+import type { AuthedRequest } from "../middleware/auth.js";
 import { User } from "../models/User.js";
-import hashGenerate from "../util/hashGenerate.js";
 import cookieGenerate from "../util/cookieGenerate.js";
+import hashGenerate from "../util/hashGenerate.js";
 
-export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
+export const getAuthenticatedUser: RequestHandler = async (req: AuthedRequest, res, next) => {
 	try {
-		const user = await User.findById(req.cookies.session.userId).select("+email").exec();
-		res.status(200).json(user);
+		if (!req.user) throw createHttpError(401, "User not authenticated");
+		res.status(200).json(req.user);
 	} catch (err) {
 		next(err);
 	}
@@ -33,7 +34,7 @@ export const register: RequestHandler<unknown, unknown, RegisterBody, unknown> =
 		const newUser = new User({ username, email, password: hashedPassword });
 		await newUser.save();
 		await cookieGenerate(res, newUser._id);
-		res.status(200).json({ message: "User registered succsesfully." });
+		res.status(200).json({ message: "User registered succsesfully.", user: newUser });
 	} catch (err) {
 		next(err);
 	}
@@ -53,7 +54,7 @@ export const login: RequestHandler<unknown, unknown, LoginBody, unknown> = async
 		const validPassword = await bcrypt.compare(password, existingUser.password);
 		if (!validPassword) throw createHttpError(401, "Invalid credentials");
 		await cookieGenerate(res, existingUser._id);
-		res.status(200).json({ message: "Logged in successfully." });
+		res.status(200).json({ message: "Logged in successfully.", user: existingUser });
 	} catch (err) {
 		next(err);
 	}

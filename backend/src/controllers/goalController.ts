@@ -14,7 +14,7 @@ export const list: RequestHandler = async (req, res, next) => {
 };
 
 interface CreateBody {
-	title?: string;
+	name?: string;
 	targetAmount?: number;
 	currentAmount?: number;
 	monthlyPayment?: number;
@@ -22,12 +22,12 @@ interface CreateBody {
 
 export const create: RequestHandler<unknown, unknown, CreateBody, unknown> = async (req, res, next) => {
 	try {
-		const { title, targetAmount, currentAmount, monthlyPayment } = req.body;
-		if (!title || !targetAmount || !currentAmount || !monthlyPayment) throw createHttpError(400, "Parameters missing");
+		const { name, targetAmount, currentAmount, monthlyPayment } = req.body;
+		if (!name || !targetAmount || !currentAmount || !monthlyPayment) throw createHttpError(400, "Parameters missing");
 		if (!req.user) throw createHttpError(401, "User not authorized");
 		const newGoal = new Goal({
 			userId: req.user.id,
-			title,
+			name,
 			targetAmount,
 			currentAmount,
 			monthlyPayment,
@@ -44,7 +44,7 @@ interface UpdateParams {
 }
 
 interface UpdateBody {
-	title?: string;
+	name?: string;
 	targetAmount?: number;
 	currentAmount?: number;
 	monthlyPayment?: number;
@@ -59,17 +59,17 @@ export const update: RequestHandler<UpdateParams, unknown, UpdateBody, unknown> 
 		if (req.user.id !== authUser.id) throw createHttpError(401, "User not authorized");
 		const goal = await Goal.findById(id);
 		if (!goal) throw createHttpError(404, "Goal not found");
-		const { title, targetAmount, currentAmount, monthlyPayment } = req.body;
-		if (!title && !targetAmount && !currentAmount && !monthlyPayment)
+		const { name, targetAmount, currentAmount, monthlyPayment } = req.body;
+		if (!name && !targetAmount && !currentAmount && !monthlyPayment)
 			throw createHttpError(400, "At least one field must be updated");
 		if (
-			title === goal.title &&
+			name === goal.name &&
 			targetAmount === goal.targetAmount &&
 			currentAmount === goal.currentAmount &&
 			monthlyPayment === goal.monthlyPayment
 		)
 			throw createHttpError(400, "No changes detected");
-		if (title && title !== goal.title) goal.title = title;
+		if (name && name !== goal.name) goal.name = name;
 		if (currentAmount && currentAmount !== goal.currentAmount) goal.currentAmount = currentAmount;
 		if (targetAmount && targetAmount !== goal.targetAmount) goal.targetAmount = targetAmount;
 		if (monthlyPayment && monthlyPayment !== goal.monthlyPayment) goal.monthlyPayment = monthlyPayment;

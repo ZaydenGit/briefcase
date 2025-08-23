@@ -13,7 +13,7 @@ const cookieGenerate = (res: Response, userId: Types.ObjectId) => {
 
 	res.cookie("session", token, {
 		httpOnly: true,
-		sameSite: "none",
+		sameSite: "lax",
 		secure: env.NODE_ENV !== "development",
 		maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
 	});
