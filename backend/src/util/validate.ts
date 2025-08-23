@@ -8,4 +8,5 @@ export default cleanEnv(process.env, {
 	CLIENT_ORIGIN: str(),
 	ENCRYPTION_SALT: num(),
 	NODE_ENV: str(),
+	JWT_SECRET: str(),
 });

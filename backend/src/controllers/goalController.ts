@@ -1,17 +1,133 @@
 import type { RequestHandler } from "express";
+import createHttpError from "http-errors";
+import Goal from "../models/Goal.js";
+import { User } from "../models/User.js";
 
-interface ListBody {}
+export const list: RequestHandler = async (req, res, next) => {
+	try {
+		if (!req.user) throw createHttpError(401, "User not authorized");
+		const goals = await Goal.find({ userId: req.user.id }).sort({ date: -1 });
+		return res.status(200).json(goals);
+	} catch (err) {
+		next(err);
+	}
+};
 
-export const list: RequestHandler<unknown, unknown, ListBody, unknown> = async (req, res, next) => {};
-interface CreateBody {}
+interface CreateBody {
+	title?: string;
+	targetAmount?: number;
+	currentAmount?: number;
+	monthlyPayment?: number;
+}
 
-export const create: RequestHandler<unknown, unknown, CreateBody, unknown> = async (req, res, next) => {};
-interface UpdateBody {}
+export const create: RequestHandler<unknown, unknown, CreateBody, unknown> = async (req, res, next) => {
+	try {
+		const { title, targetAmount, currentAmount, monthlyPayment } = req.body;
+		if (!title || !targetAmount || !currentAmount || !monthlyPayment) throw createHttpError(400, "Parameters missing");
+		if (!req.user) throw createHttpError(401, "User not authorized");
+		const newGoal = new Goal({
+			userId: req.user.id,
+			title,
+			targetAmount,
+			currentAmount,
+			monthlyPayment,
+		});
+		await newGoal.save();
+		res.status(201).json({ message: "Goal created successfully", goal: newGoal });
+	} catch (err) {
+		next(err);
+	}
+};
 
-export const update: RequestHandler<unknown, unknown, UpdateBody, unknown> = async (req, res, next) => {};
+interface UpdateParams {
+	id: string;
+}
 
-interface ContributeBody {}
+interface UpdateBody {
+	title?: string;
+	targetAmount?: number;
+	currentAmount?: number;
+	monthlyPayment?: number;
+}
 
-export const contribute: RequestHandler<unknown, unknown, ContributeBody, unknown> = async (req, res, next) => {};
+export const update: RequestHandler<UpdateParams, unknown, UpdateBody, unknown> = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		if (!req.user) throw createHttpError(401, "User not authorized");
+		const authUser = await User.findOne({ userId: req.cookies.session.userId }).select("+email").exec();
+		if (!authUser) throw createHttpError(404, "User not authenticated");
+		if (req.user.id !== authUser.id) throw createHttpError(401, "User not authorized");
+		const goal = await Goal.findById(id);
+		if (!goal) throw createHttpError(404, "Goal not found");
+		const { title, targetAmount, currentAmount, monthlyPayment } = req.body;
+		if (!title && !targetAmount && !currentAmount && !monthlyPayment)
+			throw createHttpError(400, "At least one field must be updated");
+		if (
+			title === goal.title &&
+			targetAmount === goal.targetAmount &&
+			currentAmount === goal.currentAmount &&
+			monthlyPayment === goal.monthlyPayment
+		)
+			throw createHttpError(400, "No changes detected");
+		if (title && title !== goal.title) goal.title = title;
+		if (currentAmount && currentAmount !== goal.currentAmount) goal.currentAmount = currentAmount;
+		if (targetAmount && targetAmount !== goal.targetAmount) goal.targetAmount = targetAmount;
+		if (monthlyPayment && monthlyPayment !== goal.monthlyPayment) goal.monthlyPayment = monthlyPayment;
+		const updatedGoal = await goal.save();
+		res.status(200).json({ message: "Updated goal successfully", expense: updatedGoal });
+	} catch (err) {
+		next(err);
+	}
+};
 
-export const remove: RequestHandler = async (req, res, next) => {};
+interface ContributeParams {
+	id: string;
+}
+
+interface ContributeBody {
+	contribution?: number;
+}
+
+export const contribute: RequestHandler<ContributeParams, unknown, ContributeBody, unknown> = async (
+	req,
+	res,
+	next
+) => {
+	try {
+		const { id } = req.params;
+		if (!req.user) throw createHttpError(401, "User not authorized");
+		const authUser = await User.findOne({ userId: req.cookies.session.userId }).select("+email").exec();
+		if (!authUser) throw createHttpError(404, "User not authenticated");
+		if (req.user.id !== authUser.id) throw createHttpError(401, "User not authorized");
+
+		const goal = await Goal.findById(id).exec();
+		if (!goal) throw createHttpError(404, "Goal not found");
+		const { contribution } = req.body;
+		if (!contribution) throw createHttpError(400, "Must have a contribution amount");
+		goal.currentAmount += contribution;
+		const updatedGoal = await goal.save();
+		res.status(200).json({
+			message: `Contributed ${contribution} to currentAmount (${goal.currentAmount} total)`,
+			goal: updatedGoal,
+		});
+	} catch (err) {
+		next(err);
+	}
+};
+
+interface RemoveParams {
+	id: string;
+}
+
+export const remove: RequestHandler<RemoveParams> = async (req, res, next) => {
+	try {
+		const { id } = req.params;
+		if (!req.user) throw createHttpError(401, "User not authorized");
+		const goal = await Goal.findById(id);
+		if (!goal) throw createHttpError(404, "Goal not found");
+		await goal.deleteOne();
+		res.status(200).json({ message: "Removed goal" });
+	} catch (err) {
+		next(err);
+	}
+};

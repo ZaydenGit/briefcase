@@ -7,7 +7,7 @@ router.use(requireAuth);
 
 router.get("/", list);
 router.post("/", create);
-router.put("/:id", update);
+router.patch("/:id", update);
 router.post("/:id/contribute", contribute);
 router.delete("/:id", remove);
 

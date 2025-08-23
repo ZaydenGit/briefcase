@@ -1,5 +1,5 @@
-import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
 import env from "./validate.js";
 dotenv.config({ path: "../.env" });
 
@@ -7,7 +7,7 @@ import { type Response } from "express";
 import type { Types } from "mongoose";
 
 const cookieGenerate = (res: Response, userId: Types.ObjectId) => {
-	const token = jwt.sign({ userId }, process.env.JWT_SECRET!, {
+	const token = jwt.sign({ userId }, env.JWT_SECRET, {
 		expiresIn: "7d",
 	});
 

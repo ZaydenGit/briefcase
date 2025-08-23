@@ -12,4 +12,4 @@ const ExpenseSchema = new Schema(
 );
 
 export type Expense = InferSchemaType<typeof ExpenseSchema>;
-export default model<Expense>("RecurringExpense", ExpenseSchema);
+export default model<Expense>("Expense", ExpenseSchema);
