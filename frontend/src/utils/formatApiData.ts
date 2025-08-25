@@ -1,79 +1,12 @@
-export interface ApiUser {
-	_id: string;
-	username: string;
-	email: string;
-}
-
-export interface ApiIncome {
-	_id: string;
-	name: string;
-	amount: number;
-	date: string;
-}
-
-export interface ApiExpense {
-	_id: string;
-	name: string;
-	amount: number;
-	date: string;
-	isRecurring: boolean;
-}
-
-export interface ApiGoal {
-	_id: string;
-	name: string;
-	targetAmount: number;
-	currentAmount: number;
-	monthlyPayment: number | null;
-}
-
-export interface OverviewData {
-	totalSavings: number;
-	monthlyIncome: number;
-	monthlyExpenses: number;
-	netSavings: number;
-	upcomingExpenses: UpcomingExpense[];
-}
-
-export interface FormattedGoal {
-	id: string;
-	name: string;
-	current: number;
-	target: number;
-	contribution: number | null;
-}
-export interface MonthTransaction {
-	name: string;
-	amount: number;
-}
-
-export interface MonthData {
-	income: number;
-	expenses: number;
-	net: number;
-	recurring: MonthTransaction[];
-	oneTime: MonthTransaction[];
-}
-
-export interface YearData {
-	[month: string]: MonthData;
-}
-
-export interface Years {
-	[year: string]: YearData;
-}
-
-export interface UpcomingExpense {
-	name: string;
-	amount: number;
-	due: string;
-}
-
-export interface AppData {
-	overview: OverviewData; // overview page will have savings, income, expenses, net savings, upcoming expenses (goals, monthly subs)
-	goals: FormattedGoal[];
-	years: Years;
-}
+import type { ApiExpense, ApiGoal, ApiIncome } from "../types/api.types";
+import type {
+	AppData,
+	FormattedGoal,
+	MonthTransaction,
+	OverviewData,
+	UpcomingExpense,
+	Years,
+} from "../types/app.types";
 
 export const formatApiData = (incomes: ApiIncome[], expenses: ApiExpense[], goals: ApiGoal[]): AppData => {
 	const years: Years = {};
@@ -151,6 +84,10 @@ export const formatApiData = (incomes: ApiIncome[], expenses: ApiExpense[], goal
 		target: g.targetAmount,
 		contribution: g.monthlyPayment,
 	}));
+
+	console.log("Overview:", overview);
+	console.log("Goals:", formattedGoals);
+	console.log("Years:", years);
 
 	return { overview, goals: formattedGoals, years };
 };

@@ -1,10 +1,14 @@
-export const apiRequest = async <T>(endpoint: string, method: "GET" | "POST" = "GET", body?: any): Promise<T> => {
+export const apiRequest = async <T>(
+	endpoint: string,
+	method: "GET" | "POST" | "PATCH" | "DELETE" = "GET",
+	body?: any
+): Promise<T> => {
 	const options: RequestInit = {
 		method,
 		credentials: "include",
 		headers: {},
 	};
-	if (method === "POST" && body) {
+	if ((method === "POST" || method === "PATCH") && body) {
 		options.headers = { "Content-Type": "application/json" };
 		options.body = JSON.stringify(body);
 	}
