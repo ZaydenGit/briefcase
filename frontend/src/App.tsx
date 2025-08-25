@@ -1,79 +1,47 @@
+import { LoaderCircle } from "lucide-react";
 import { useEffect, useState, type FC } from "react";
+import MainApp from "./MainApp";
 import { apiRequest } from "./network/apiRequest";
-import { Loader, LoaderCircle } from "lucide-react";
-import {
-	type ApiUser,
-	formatApiData,
-	type ApiExpense,
-	type ApiGoal,
-	type ApiIncome,
-	type AppData,
-} from "./utils/formatApiData";
 import { AuthPage } from "./pages/AuthPage";
-
-type ViewState = { type: "overview" } | { type: "month"; year: string; month: string } | { type: "goals" };
+import type { ApiUser } from "./types/api.types";
 
 const App: FC = () => {
-	const [currentView, setCurrentView] = useState<ViewState>({ type: "overview" });
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState(null);
-	const [appData, setAppData] = useState<AppData | null>(null);
+	const [authLoading, setAuthLoading] = useState(true);
+
 	const [user, setUser] = useState<ApiUser | null>(null);
 
 	useEffect(() => {
 		const checkAuthStatus = async () => {
 			try {
-				const authUsre = await apiRequest<ApiUser>("/users");
-				setUser(authUsre);
-			} catch (err) {
+				const authUser = await apiRequest<ApiUser>("/users");
+				setUser(authUser);
+			} catch {
 				console.log("User not authenticated");
 				setUser(null);
 			} finally {
-				setLoading(false);
+				setAuthLoading(false);
 			}
 		};
 		checkAuthStatus();
-		// const fetchData = async () => {
-		// 	try {
-		// 		setLoading(true);
-		// 		const [incomes, expenses, goals] = await Promise.all([
-		// 			apiRequest<ApiIncome[]>("/incomes"),
-		// 			apiRequest<ApiExpense[]>("/expenses"),
-		// 			apiRequest<ApiGoal[]>("/goals"),
-		// 		]);
-		// 		setAppData(await formatApiData(incomes, expenses, goals));
-		// 		setError(null);
-		// 	} catch (err: any) {
-		// 		alert(err.message);
-		// 		setError(err.message);
-		// 	} finally {
-		// 		setLoading(false);
-		// 	}
-		// };
 	}, []);
 
-	if (loading)
+	const logoutHandler = async () => {
+		try {
+			await apiRequest("/users/logout", "POST");
+			setUser(null);
+		} catch (err) {
+			console.error("Logout Failed", err);
+		}
+	};
+
+	if (authLoading)
 		return (
 			<div className='flex items-center justify-center min-h-screen bg-gray-100'>
 				<LoaderCircle className='w-16 h-16 animate-spin text-blue-600' />
 			</div>
 		);
 
-	const render = () => {
-		if (loading)
-			return (
-				<div className='flex items-center justify-center h-full'>
-					<LoaderCircle className='w-12 h-12 animate-spin text-blue-500' />
-				</div>
-			);
-		else return <p>Hi</p>;
-	};
-
-	return user ? (
-		<main className='flex-1 h-screen overflow-y-auto'>{render()}</main>
-	) : (
-		<AuthPage onAuthSuccess={setUser} />
-	);
+	return user ? <MainApp user={user} onLogout={logoutHandler} /> : <AuthPage onAuthSuccess={setUser} />;
 };
 
 export default App;
