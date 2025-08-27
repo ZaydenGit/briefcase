@@ -44,7 +44,9 @@ export const GoalsPage: FC<GoalsPageProps> = ({ goals, onOpenModal, onDelete }) 
 							<div className='w-full bg-gray-200 rounded-full h-4'>
 								<div
 									className='bg-blue-600 h-4 rounded-full'
-									style={{ width: `${(goal.current / goal.target) * 100}%` }}
+									style={{
+										width: `${(goal.current / goal.target) * 100 <= 100 ? (goal.current / goal.target) * 100 : 100}%`,
+									}}
 								></div>
 							</div>
 						</div>

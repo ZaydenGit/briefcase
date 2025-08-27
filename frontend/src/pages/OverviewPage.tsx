@@ -73,7 +73,9 @@ export const OverviewPage: FC<OverviewPageProps> = ({ data, goals }) => (
 							<div className='w-full bg-gray-200 rounded-full h-2.5'>
 								<div
 									className='bg-blue-600 h-2.5 rounded-full'
-									style={{ width: `${(goal.current / goal.target) * 100}%` }}
+									style={{
+										width: `${(goal.current / goal.target) * 100 <= 100 ? (goal.current / goal.target) * 100 : 100}%`,
+									}}
 								></div>
 							</div>
 						</div>

@@ -3,6 +3,7 @@ import type { ModalState } from "../types/modal.types";
 import { formatInputDate } from "../utils/formatInputDate";
 import { apiRequest } from "../network/apiRequest";
 import { LoaderCircle, X } from "lucide-react";
+import { monthNames } from "../utils/monthNames";
 
 interface DataEntryModalProps {
 	modalState: ModalState;
@@ -18,11 +19,17 @@ export const DataEntryModal: FC<DataEntryModalProps> = ({ modalState, onClose, o
 		if (modalState) {
 			setError(null);
 			const { data } = modalState;
+
+			let defaultDate = new Date();
+			if (data?.year && data?.month) {
+				const monthIndex = monthNames.indexOf(data.month);
+				if (monthIndex === -1) defaultDate = new Date(parseInt(data.year), monthIndex, 1);
+			}
 			console.log("Data:", data);
 			const defaults = {
 				name: "",
 				amount: "",
-				date: formatInputDate(new Date()),
+				date: formatInputDate(defaultDate),
 				isRecurring: false,
 				targetAmount: "",
 				currentAmount: "",
@@ -32,7 +39,7 @@ export const DataEntryModal: FC<DataEntryModalProps> = ({ modalState, onClose, o
 				? {
 						...defaults,
 						...data,
-						date: data.date ? formatInputDate(new Date(data.date)) : formatInputDate(new Date()),
+						date: data.date ? formatInputDate(new Date(data.date)) : formatInputDate(defaultDate),
 				  }
 				: defaults;
 			setFormData(initialData);
@@ -73,7 +80,7 @@ export const DataEntryModal: FC<DataEntryModalProps> = ({ modalState, onClose, o
 					};
 					break;
 				case "goal":
-					endpoint = mode === "add" ? "/goals" : `/goals/${data.id}`;
+					endpoint = mode === "add" ? "/goals" : `/goals/${data._id}`;
 					body = {
 						name: formData.name,
 						targetAmount: parseFloat(formData.targetAmount),
@@ -82,9 +89,10 @@ export const DataEntryModal: FC<DataEntryModalProps> = ({ modalState, onClose, o
 					};
 					break;
 				case "contribution":
-					method = "PATCH";
-					endpoint = `/goals/${data.id}`;
-					body = { currentAmount: data.current + parseFloat(formData.amount) };
+					console.log("aaa", data);
+					method = "POST";
+					endpoint = `/goals/${data.id}/contribute`;
+					body = { contribution: parseFloat(formData.amount) };
 					break;
 			}
 			await apiRequest(endpoint, method, body);
@@ -141,6 +149,16 @@ export const DataEntryModal: FC<DataEntryModalProps> = ({ modalState, onClose, o
 									type='number'
 									name='monthlyContribution'
 									value={formData.monthlyContribution || ""}
+									onChange={handleChange}
+									className='mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md'
+								/>
+							</div>
+							<div>
+								<label className='block text-sm font-medium text-gray-700'>Deadline</label>
+								<input
+									type='date'
+									name='deadline'
+									value={formData.deadline || ""}
 									onChange={handleChange}
 									className='mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md'
 								/>

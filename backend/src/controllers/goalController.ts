@@ -2,6 +2,7 @@ import type { RequestHandler } from "express";
 import createHttpError from "http-errors";
 import Goal from "../models/Goal.js";
 import { User } from "../models/User.js";
+import jwt from "jsonwebtoken";
 
 export const list: RequestHandler = async (req, res, next) => {
 	try {
@@ -54,7 +55,8 @@ export const update: RequestHandler<UpdateParams, unknown, UpdateBody, unknown> 
 	try {
 		const { id } = req.params;
 		if (!req.user) throw createHttpError(401, "User not authorized");
-		const authUser = await User.findOne({ userId: req.cookies.session.userId }).select("+email").exec();
+		const payload = await (jwt.verify(req.cookies.session, process.env.JWT_SECRET!) as { userId: string });
+		const authUser = await User.findById(payload.userId).select("+email").exec();
 		if (!authUser) throw createHttpError(404, "User not authenticated");
 		if (req.user.id !== authUser.id) throw createHttpError(401, "User not authorized");
 		const goal = await Goal.findById(id);
@@ -94,9 +96,12 @@ export const contribute: RequestHandler<ContributeParams, unknown, ContributeBod
 	next
 ) => {
 	try {
+		console.log(req.body);
 		const { id } = req.params;
 		if (!req.user) throw createHttpError(401, "User not authorized");
-		const authUser = await User.findOne({ userId: req.cookies.session.userId }).select("+email").exec();
+		const payload = await (jwt.verify(req.cookies.session, process.env.JWT_SECRET!) as { userId: string });
+		const authUser = await User.findById(payload.userId).select("+email").exec();
+		console.log(authUser);
 		if (!authUser) throw createHttpError(404, "User not authenticated");
 		if (req.user.id !== authUser.id) throw createHttpError(401, "User not authorized");
 

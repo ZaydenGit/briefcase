@@ -7,24 +7,10 @@ import type {
 	UpcomingExpense,
 	Years,
 } from "../types/app.types";
+import { monthNames } from "./monthNames";
 
 export const formatApiData = (incomes: ApiIncome[], expenses: ApiExpense[], goals: ApiGoal[]): AppData => {
 	const years: Years = {};
-	const monthNames = [
-		"January",
-		"February",
-		"March",
-		"April",
-		"May",
-		"June",
-		"July",
-		"August",
-		"September",
-		"October",
-		"November",
-		"December",
-	];
-
 	//income
 	incomes.forEach((income) => {
 		const date = new Date(income.date);

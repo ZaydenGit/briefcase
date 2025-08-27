@@ -4,7 +4,7 @@ import helmet from "helmet";
 import { connectDatabase } from "./db.js";
 import env from "./util/validate.js";
 
-dotenv.config({ path: "../.env" });
+dotenv.config({ path: ".env" });
 const port = env.PORT || 5000;
 
 import cookieParser from "cookie-parser";
