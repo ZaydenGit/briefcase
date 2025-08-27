@@ -34,6 +34,7 @@ app.use(
 app.use((req, res, next) => {
 	const allowedOrigins = [env.BACKEND_BASEURL];
 	const origin = req.headers.host;
+	console.log(origin);
 	if (allowedOrigins.includes(origin!)) next();
 	else next(createHttpError(404, "Request blocked by cors"));
 });
