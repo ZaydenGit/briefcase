@@ -13,7 +13,6 @@ interface SidebarProps {
 export const SideBar: FC<SidebarProps> = ({ onSelect, years, onLogout, user }) => {
 	const { username } = user;
 	const sortedYears = Object.keys(years).sort((a, b) => parseInt(b) - parseInt(a));
-	console.log(sortedYears);
 	const initialOpenState = sortedYears.reduce((acc, year, index) => {
 		acc[year] = index === 0;
 		return acc;
@@ -24,13 +23,13 @@ export const SideBar: FC<SidebarProps> = ({ onSelect, years, onLogout, user }) =
 		setOpenYears((prev) => ({ ...prev, [year]: !prev[year] }));
 	};
 	return (
-		<div className='flex-col flex w-64 bg-gray-50 h-screen p-4'>
+		<div className='flex-col flex w-64 bg-gray-50 h-screen p-4 drop-shadow-xl drop-shadow-zinc-150'>
 			<h1 className='text-2xl font-bold text-gray-800 mb-8'>Briefcase</h1>
 			<nav className='flex-col flex-grow flex space-y-2'>
 				<a
 					href='#'
 					onClick={() => onSelect({ type: "overview" })}
-					className='flex items-center text-gray-600 p-2 hover:bg-gray-200 rounded-lg transition-colors'
+					className='flex items-center text-gray-600 p-2 hover:bg-gradient-to-r to-gray-200 rounded-lg transition-colors'
 				>
 					<LayoutDashboard className='w-5 h-5 mr-3' />
 					Overview
@@ -39,7 +38,7 @@ export const SideBar: FC<SidebarProps> = ({ onSelect, years, onLogout, user }) =
 					<div key={year}>
 						<div
 							onClick={() => toggleYear(year)}
-							className='flex items-center p-2 text-gray-600 hover:bg-gray-200 rounded-lg cursor-pointer transition-colors'
+							className='flex items-center p-2 text-gray-600 hover:bg-gradient-to-r to-gray-200 rounded-lg cursor-pointer transition-colors'
 						>
 							{openYears[year] ? <ChevronDown className='w-5 h-5 mr-3' /> : <ChevronRight className='w-5 h-5 mr-3' />}
 							<Folder className='w-5 h-5 mr-2 text-yellow-500' /> {year}
@@ -51,7 +50,7 @@ export const SideBar: FC<SidebarProps> = ({ onSelect, years, onLogout, user }) =
 										href='#'
 										key={month}
 										onClick={() => onSelect({ type: "month", year, month })}
-										className='block pl-4 pr-2 py-1 text-gray-500 hover:text-gray-800 hover:bg-gray-200 rounded-r-lg transition-colors'
+										className='block pl-4 pr-2 py-1 text-gray-500 hover:text-gray-800 hover:bg-gradient-to-r to-gray-200 rounded-r-lg transition-colors'
 									>
 										{month}
 									</a>
@@ -63,7 +62,7 @@ export const SideBar: FC<SidebarProps> = ({ onSelect, years, onLogout, user }) =
 				<a
 					href='#'
 					onClick={() => onSelect({ type: "goals" })}
-					className='flex items-center text-gray-600 p-2 hover:bg-gray-200 rounded-lg transition-colors'
+					className='flex items-center text-gray-600 p-2 hover:bg-gradient-to-r to-gray-200 rounded-lg transition-colors'
 				>
 					<Target className='w-5 h-5 mr-3 text-green-500' /> Goals
 				</a>
@@ -75,7 +74,7 @@ export const SideBar: FC<SidebarProps> = ({ onSelect, years, onLogout, user }) =
 				<a
 					href='#'
 					onClick={onLogout}
-					className='flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors'
+					className='flex items-center p-2 text-gray-600 rounded-lg hover:bg-gradient-to-r to-gray-200 transition-colors'
 				>
 					<LogOut className='w-5 h-5 mr-3' /> Logout
 				</a>

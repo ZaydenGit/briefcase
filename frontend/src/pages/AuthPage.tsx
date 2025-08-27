@@ -1,13 +1,7 @@
 import { useState, type FC, type FormEvent } from "react";
-<<<<<<< Updated upstream
-import type { ApiUser } from "../utils/formatApiData";
-import { apiRequest } from "../network/apiRequest";
-import { Briefcase, LoaderCircle } from "lucide-react";
-=======
 import { apiRequest } from "../network/apiRequest";
 import { Briefcase, LoaderCircle } from "lucide-react";
 import type { ApiUser } from "../types/api.types";
->>>>>>> Stashed changes
 
 interface AuthPageProps {
 	onAuthSuccess: (user: ApiUser) => void;
@@ -30,14 +24,9 @@ export const AuthPage: FC<AuthPageProps> = ({ onAuthSuccess }) => {
 			const body = isLoginView ? { email, password } : { username, email, password };
 			console.log(body);
 			const user = await apiRequest<ApiUser>(endpoint, "POST", body);
-<<<<<<< Updated upstream
-
-			onAuthSuccess(user);
-=======
 			const authUser = await apiRequest<ApiUser>("/users/", "GET", user);
 			console.log(authUser);
 			onAuthSuccess(authUser);
->>>>>>> Stashed changes
 		} catch (err: any) {
 			setError(err.message);
 		} finally {
@@ -64,7 +53,6 @@ export const AuthPage: FC<AuthPageProps> = ({ onAuthSuccess }) => {
 								id='username'
 								name='username'
 								type='text'
-								autoComplete='username'
 								required
 								value={username}
 								onChange={(e) => setUsername(e.target.value)}

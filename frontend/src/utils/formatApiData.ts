@@ -43,7 +43,7 @@ export const formatApiData = (incomes: ApiIncome[], expenses: ApiExpense[], goal
 		if (!years[year]) years[year] = {};
 		if (!years[year][month]) years[year][month] = { income: 0, expenses: 0, net: 0, recurring: [], oneTime: [] };
 		years[year][month].expenses += expense.amount;
-		const transaction: MonthTransaction = { name: expense.name, amount: expense.amount };
+		const transaction: MonthTransaction = { id: expense._id, name: expense.name, amount: expense.amount };
 		if (expense.isRecurring) years[year][month].recurring.push(transaction);
 		else years[year][month].oneTime.push(transaction);
 	});
@@ -89,5 +89,5 @@ export const formatApiData = (incomes: ApiIncome[], expenses: ApiExpense[], goal
 	console.log("Goals:", formattedGoals);
 	console.log("Years:", years);
 
-	return { overview, goals: formattedGoals, years };
+	return { overview, goals: formattedGoals, years, raw: { incomes, expenses, goals } };
 };

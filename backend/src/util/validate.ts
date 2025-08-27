@@ -5,7 +5,7 @@ dotenv.config({ path: "../.env" });
 export default cleanEnv(process.env, {
 	MONGODB_URI: str(),
 	PORT: port(),
-	CLIENT_ORIGIN: str(),
+	BACKEND_BASEURL: str(),
 	ENCRYPTION_SALT: num(),
 	NODE_ENV: str(),
 	JWT_SECRET: str(),

@@ -21,14 +21,14 @@ interface CreateBody {
 
 export const create: RequestHandler<unknown, unknown, CreateBody, unknown> = async (req, res, next) => {
 	try {
-		const { name, amount, category } = req.body;
-		if (!name || !amount || !category) throw createHttpError(400, "Parameters missing");
+		const { name, amount } = req.body;
+		if (!name || !amount) throw createHttpError(400, "Parameters missing");
 		if (!req.user) throw createHttpError(401, "User not authorized");
 		const newIncome = new Income({
 			userId: req.user.id,
 			name,
 			amount,
-			category,
+			// category,
 		});
 		await newIncome.save();
 		res.status(201).json(newIncome);
@@ -55,15 +55,14 @@ export const update: RequestHandler<UpdateParams, unknown, UpdateBody, unknown> 
 		if (req.user.id !== authUser.id) throw createHttpError(401, "User not authorized");
 		const income = await Income.findById(id);
 		if (!income) throw createHttpError(404, "Income not found");
-		const { name, amount, category } = req.body;
-		if (!name && !amount && !category) throw createHttpError(400, "At least one field must be updated");
-		if (name === income.name && amount === income.amount && category === income.category)
-			throw createHttpError(400, "No changes detected");
+		const { name, amount } = req.body;
+		if (!name && !amount) throw createHttpError(400, "At least one field must be updated");
+		if (name === income.name && amount === income.amount) throw createHttpError(400, "No changes detected");
 
 		//add validation to these sections later
 		if (name && income.name !== name) income.name = name;
 		if (amount && income.amount !== amount) income.amount = amount;
-		if (category && income.category !== category) income.category = category;
+		// if (category && income.category !== category) income.category = category;
 		const updatedIncome = await income.save();
 
 		res.status(200).json({ message: "Updated income successfully", income: updatedIncome });

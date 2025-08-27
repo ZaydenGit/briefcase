@@ -15,21 +15,21 @@ export const list: RequestHandler = async (req, res, next) => {
 interface CreateBody {
 	name?: string;
 	amount?: number;
-	category?: string;
+	// category?: string;
 	date?: string;
 	isRecurring?: boolean;
 }
 
 export const create: RequestHandler<unknown, unknown, CreateBody, unknown> = async (req, res, next) => {
 	try {
-		const { name, amount, category, date, isRecurring } = req.body;
-		if (!name || !amount || !category) throw createHttpError(400, "Parameters missing");
+		const { name, amount, date, isRecurring } = req.body;
+		if (!name || !amount) throw createHttpError(400, "Parameters missing");
 		if (!req.user) throw createHttpError(401, "User not authorized");
 		const newExpense = new Expense({
 			userId: req.user.id,
 			name,
 			amount,
-			category,
+
 			date: date || new Date(),
 			isRecurring,
 		});
@@ -61,13 +61,12 @@ export const update: RequestHandler<UpdateParams, unknown, UpdateBody, unknown> 
 		if (req.user.id !== authUser.id) throw createHttpError(401, "User not authorized");
 		const expense = await Expense.findById(id);
 		if (!expense) throw createHttpError(404, "Expense not found");
-		const { name, amount, category, date, isRecurring } = req.body;
-		if (!name && !amount && !category && !date && !isRecurring)
-			throw createHttpError(400, "At least one field must be updated");
+		const { name, amount, date, isRecurring } = req.body;
+		if (!name && !amount && !date && !isRecurring) throw createHttpError(400, "At least one field must be updated");
 		if (
 			name === expense.name &&
 			amount === expense.amount &&
-			category === expense.category &&
+			// category === expense.category &&
 			date === expense.date &&
 			isRecurring === expense.isRecurring
 		)
@@ -76,7 +75,7 @@ export const update: RequestHandler<UpdateParams, unknown, UpdateBody, unknown> 
 		//add validation to these sections later
 		if (name && expense.name !== name) expense.name = name;
 		if (amount && expense.amount !== amount) expense.amount = amount;
-		if (category && expense.category !== category) expense.category = category;
+		// if (category && expense.category !== category) expense.category = category;
 		if (date && expense.date !== date) expense.date = date;
 		if (typeof isRecurring !== "undefined" && isRecurring !== expense.isRecurring) expense.isRecurring = isRecurring;
 		const updatedExpense = await expense.save();

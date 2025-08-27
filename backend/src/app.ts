@@ -24,7 +24,7 @@ app.use(cookieParser());
 
 app.use(
 	cors({
-		origin: env.CLIENT_ORIGIN,
+		origin: env.BACKEND_BASEURL,
 		credentials: true,
 		methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
 		allowedHeaders: ["Content-Type", "Authorization"],
@@ -32,7 +32,7 @@ app.use(
 );
 
 app.use((req, res, next) => {
-	const allowedOrigins = [env.CLIENT_ORIGIN];
+	const allowedOrigins = [env.BACKEND_BASEURL];
 	const origin = req.headers.host;
 	if (allowedOrigins.includes(origin!)) next();
 	else next(createHttpError(404, "Request blocked by cors"));
@@ -62,7 +62,7 @@ export default app;
 const startServer = async () => {
 	try {
 		await connectDatabase(env.MONGODB_URI!);
-		app.listen(port, () => console.log(`Server running on http://localhost:${port}`));
+		app.listen(port, () => console.log(`Server running on http://${env.BACKEND_BASEURL}`));
 	} catch (err) {
 		console.error("Connection to Database failed:", err);
 		process.exit(1);
