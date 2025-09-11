@@ -14,6 +14,9 @@ Briefcase is a full-stack web application designed to help you manage your perso
 
 ---
 
+Disclaimer: This application is in active development and may not function properly.
+
+---
 
 ## Table of Contents
 
