@@ -34,7 +34,6 @@ app.use(
 app.use((req, res, next) => {
 	const allowedOrigins = [env.BACKEND_BASEURL];
 	const origin = req.headers.host;
-	console.log(origin);
 	if (allowedOrigins.includes(origin!)) next();
 	else next(createHttpError(404, "Request blocked by cors"));
 });
@@ -52,7 +51,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 	try {
 		console.error(err);
 		if (createHttpError.isHttpError(err)) res.status(err.statusCode).json({ error: err.message });
-		else res.status(500).json({ error: "An unknown error occurred" });
+		else res.status(502).json({ error: "An unknown error occurred" });
 	} catch (err) {
 		next(err);
 	}

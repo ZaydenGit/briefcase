@@ -15,13 +15,15 @@ import type { ModalState } from "./types/modal.types";
 interface MainAppProps {
 	user: ApiUser;
 	onLogout: () => void;
+	navigate: (path: string) => void;
 }
-const MainApp: FC<MainAppProps> = ({ user, onLogout }) => {
+const MainApp: FC<MainAppProps> = ({ user, onLogout, navigate }) => {
 	const [currentView, setCurrentView] = useState<ViewState>({ type: "overview" });
 	const [appData, setAppData] = useState<AppData | null>(null);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
 	const [modalState, setModalState] = useState<ModalState>(null);
+	const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
 	const fetchAllData = async () => {
 		try {
@@ -132,8 +134,17 @@ const MainApp: FC<MainAppProps> = ({ user, onLogout }) => {
 	};
 	return (
 		<>
-			<div className='flex bg-gray-100 font-sans'>
-				<SideBar onSelect={setCurrentView} years={appData?.years || {}} onLogout={onLogout} user={user} />
+			<div className='flex bg-gray-100 font-sans min-h-screen'>
+				<SideBar
+					onSelect={setCurrentView}
+					years={appData?.years || {}}
+					onLogout={onLogout}
+					username={user.username}
+					onOpenModal={handleOpenModal}
+					navigate={navigate}
+					isCollapsed={isSidebarCollapsed}
+					setIsCollapsed={setIsSidebarCollapsed}
+				/>
 				<main className='flex-1 h-screen overflow-y-auto'>{renderContent()}</main>
 			</div>
 			<DataEntryModal modalState={modalState} onClose={() => setModalState(null)} onSave={fetchAllData} />

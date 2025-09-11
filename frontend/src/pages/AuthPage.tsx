@@ -5,9 +5,10 @@ import type { ApiUser } from "../types/api.types";
 
 interface AuthPageProps {
 	onAuthSuccess: (user: ApiUser) => void;
+	navigate: (path: string) => void;
 }
 
-export const AuthPage: FC<AuthPageProps> = ({ onAuthSuccess }) => {
+export const AuthPage: FC<AuthPageProps> = ({ onAuthSuccess, navigate }) => {
 	const [isLoginView, setIsLoginView] = useState(false);
 	const [username, setUsername] = useState("");
 	const [email, setEmail] = useState("");
@@ -22,11 +23,10 @@ export const AuthPage: FC<AuthPageProps> = ({ onAuthSuccess }) => {
 		try {
 			const endpoint = isLoginView ? "/users/login" : "/users/register";
 			const body = isLoginView ? { email, password } : { username, email, password };
-			console.log(body);
 			const user = await apiRequest<ApiUser>(endpoint, "POST", body);
 			const authUser = await apiRequest<ApiUser>("/users/", "GET", user);
-			console.log(authUser);
 			onAuthSuccess(authUser);
+			navigate("/dashboard");
 		} catch (err: any) {
 			setError(err.message);
 		} finally {
@@ -38,7 +38,11 @@ export const AuthPage: FC<AuthPageProps> = ({ onAuthSuccess }) => {
 		<div className='flex items-center justify-center min-h-screen bg-gray-100'>
 			<div className='w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg'>
 				<div className='text-center'>
-					<Briefcase className='mx-auto h-12 w-auto text-blue-600' />
+					<Briefcase
+						className='mx-auto h-12 w-auto text-blue-600 hover:scale-115 hover:text-bold hover:text-blue-800 hover:rotate-6 transition-all ease-in-out duration-75'
+						href='#'
+						onClick={() => navigate("/")}
+					/>
 					<h2 className='mt-6 text-3xl font-extrabold text-gray-900'>
 						{isLoginView ? "Sign in to Briefcase" : "Create your account"}
 					</h2>
